@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.3'
 	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
 	id 'java'
+	id "org.openapi.generator" version "6.1.0"
 }
 
 group = 'com.volushkova.apifirst'
@@ -14,10 +15,37 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation('org.springframework.boot:spring-boot-starter-logging')
+	implementation('org.springframework.boot:spring-boot-starter-validation')
+
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.11'
+	implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.2'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "${project.projectDir}/src/main/resources/petstore.yaml".toString()
+	outputDir = "${project.projectDir}".toString()
+	globalProperties = [
+			apis: "",
+			models: ""
+	]
+	apiPackage = "com.volushkova.apifirst.generated"
+	invokerPackage = "com.volushkova.apifirst.generated.mock"
+	modelPackage = "com.volushkova.apifirst.generated.model"
+	configOptions = [
+			dateLibrary: "java8"
+	]
+}
+
+openApiValidate {
+	inputSpec = "${project.projectDir}/src/main/resources/petstore.yaml".toString()
+	recommend = true
 }
