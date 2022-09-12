@@ -4,13 +4,17 @@ plugins {
 	id 'java'
 	id "org.openapi.generator" version "6.1.0"
 }
-
+apply plugin: 'maven-publish'
 group = 'com.volushkova.apifirst'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
+	maven {
+		url "http://localhost:8081/repository/apifirst/"
+		allowInsecureProtocol = true
+	}
 }
 
 dependencies {
@@ -35,11 +39,16 @@ openApiGenerate {
 	outputDir = "${project.projectDir}".toString()
 	globalProperties = [
 			apis: "",
-			models: ""
+			models: "",
+			supportingFiles: ""
 	]
 	apiPackage = "com.volushkova.apifirst.generated"
 	invokerPackage = "com.volushkova.apifirst.generated.mock"
 	modelPackage = "com.volushkova.apifirst.generated.model"
+	skipOverwrite = true
+	id = "ApiFirstMockServer"
+	groupId = "com.volushkova.apifirst"
+
 	configOptions = [
 			dateLibrary: "java8"
 	]
@@ -48,4 +57,29 @@ openApiGenerate {
 openApiValidate {
 	inputSpec = "${project.projectDir}/src/main/resources/petstore.yaml".toString()
 	recommend = true
+}
+
+task assembleArtifact(type: Zip, group: 'petstore-api') {
+	archiveName 'petstore-api.zip'
+	destinationDir file("$buildDir/libs/")
+	from "src/main/resources/petstore.yaml"
+	description "Assemble archive $archiveName into ${relativePath(destinationDir)}"
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifact source: assembleArtifact, extension: 'zip'
+		}
+	}
+	repositories {
+		maven {
+			credentials {
+				username "admin"
+				password "admin"
+			}
+			url "http://localhost:8081/repository/apifirst-snapshot/"
+			allowInsecureProtocol = true
+		}
+	}
 }
