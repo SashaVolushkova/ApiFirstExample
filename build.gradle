@@ -78,7 +78,7 @@ publishing {
 				username "admin"
 				password "admin"
 			}
-			url "http://localhost:8081/repository/apifirst-snapshot/"
+			url "http://localhost:8080/repository/apifirst-snapshot/"
 			allowInsecureProtocol = true
 		}
 	}
